@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block head_title %}{% trans "User Profile" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-3" style="padding: 20px;">
+    <div class="row">
+        <div class="col col-3 " style="padding: 20px;">
+            {% include 'user_profile/sidebar.html' %}
+        </div>
+
+        <div class="col col-9 " style="padding: 20px;">
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 text-center">User Profile Settings</h2>
+                    <hr>
+                    <form class="form" id="user_update_form" enctype="multipart/form-data" method="post" action=".">
+                        {% csrf_token %}
+                        {% bootstrap_form user_detail_form %}
+                        {% bootstrap_form user_profile_form %}
+                        {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary col-3" >Update Settings</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

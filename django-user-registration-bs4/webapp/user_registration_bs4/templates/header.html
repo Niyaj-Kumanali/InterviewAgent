@@ -1,0 +1,46 @@
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+  integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<nav class="navbar navbar-expand-lg navbar-light bg-light" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand" href="/" style="text-decoration-line: none; font-size: 25px"><img
+        src="https://www.randstadsourceright.com/s3fs-media/sr/public/2021-01/Consultation_illustration_UseBackgroundNavy_RGB.png"
+        alt="Interview" style="width: 3.5rem;"></a>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+      data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+        {% if request.user.is_authenticated %}
+        <li class="nav-item" style="padding: 1.5px 3px 2px;">
+          <a href="/accounts/profile/" style="text-decoration: none; padding: 5px 10px; font-size: 1rem">
+            <img src="{{request.user.user_profile.image.url_60x60}}" style="height: 40px"
+              alt="{{request.user.fullname}}" class="avatar rounded-circle" />
+            <span class="header-username" style="font-size: 18px">{{request.user.get_full_name}}</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="http://localhost:3000/video_face_tracking"
+            style="font-size: 18px; padding: 5px 10px;">User Analysis</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/accounts/logout/" style="font-size: 18px; padding: 5px 10px;">Logout</a>
+        </li>
+        {% else %}
+
+        <li class="nav-item">
+          <a class="nav-link" href="/accounts/login/" style="font-size: 18px; padding: 5px 10px;">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/accounts/signup/" style="font-size: 18px; padding: 5px 10px;">Signup</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

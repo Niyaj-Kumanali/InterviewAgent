@@ -1,0 +1,128 @@
+.page-container {
+  left: 0;
+  right: 0;
+  margin: auto;
+  margin-top: 20px;
+  padding-left: 280px;
+  display: inline-flex !important;
+}
+
+@media only screen and (max-width : 992px) {
+  .page-container {
+    padding-left: 0;
+    display: flex !important;
+  }
+}
+
+#navbar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.center-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.side-by-side {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.side-by-side >* {
+  margin: 0 5px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.margin-sm {
+  margin: 5px;
+}
+
+.margin {
+  margin: 20px;
+}
+
+.button-sm {
+  padding: 0 10px !important;
+}
+
+.pad-sides-sm {
+  padding: 0 8px !important;
+}
+
+#github-link {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid;
+  margin-bottom: 10px;
+}
+
+#overlay, .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#facesContainer canvas {
+  margin: 10px;
+  width: 150px;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: #ee6e73;
+  color: white;
+  text-align: center;
+  z-index: 99;
+}
+
+.footer > div div{
+  display: inline-block;
+  padding-left: 20px;
+}
+
+.margin10 {
+  margin: 10px;
+}
+
+#graphChangeChkBxHolder{
+  padding: 0px 20px;
+}
+
+#graphChangeChkBxHolder label {
+  padding-left: 22px;
+  padding-right: 10px;
+}
+
+.extractedFace {
+  border-width: 4px;
+  border-radius: 5px;
+  border-style: solid;
+}
+
+nav {
+  height: 48px !important;
+  line-height: 48px !important;
+}
+
+.nav-wrapper > a {
+  font-size: 25px !important;
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block head_title %}{% trans "User Status" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-3"  style="padding: 20px;">
+    <div class="row">
+        <div class="col col-3 " style="padding: 20px;">
+            {% include 'user_profile/sidebar.html' %}
+        </div>
+
+        <div class="col col-9 " style="padding: 20px;">
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4">Account Status</h2>
+                    <hr>
+                    <p>This account is currently active. To de-activate, please click the button below, you
+                        can always re-activate your account at anytime.</p>
+                    <button class="btn btn-danger " style="padding: 10px;">De-activate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

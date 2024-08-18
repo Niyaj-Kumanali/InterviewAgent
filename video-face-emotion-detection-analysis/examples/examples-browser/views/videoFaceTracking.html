@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- libraries required by face-api.js framework -->
+  <script src="face-api.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/drawing.js"></script>
+  <script src="js/faceDetectionControls.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+
+  <!-- angular is used for variable binding. to update values(emotionsCount) automatically -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <!-- to draw chart -->
+  <script src="js/Chart.js"></script>
+  <!-- javascript manipulations required for videofacetracking -->
+  <script src="js/videoFaceTracking.js"></script>
+  <title>User Analysis</title>
+</head>
+
+<body>
+  <div ng-app="myApp" ng-controller="myCtrl">
+    <!-- <div id="navbar"></div> -->
+    <div>
+      <div class="progress" id="loader">
+        <div class="indeterminate"></div>
+      </div>
+
+      <nav>
+        <div class="nav-wrapper">
+          <a href="#" class="brand-logo center">User Analysis </a>
+        </div>
+      </nav>
+
+      <div class="row">
+        <div class="col s6">
+          <div style="position: relative" class="margin10">
+            <!-- ///////////////////////////////////////////////////////////////////
+              /////////////////////// ing /////////////////////////////// -->
+
+            <video id="inputVideo" style="height:50vh; width: 100%;" muted></video>
+            <!-- <video src="bbt.mp4" id="inputVideo" width="100%" muted></video> -->
+
+            <!-- https://www.w3schools.com/tags/movie.ogg -->
+            <canvas id="overlay"></canvas>
+          </div>
+
+          <div class="right-align">
+            <label for="input">Choose a video file to process:</label>
+            <input type="file" id="input" name="input_video" accept="video/mp4, video/mov" />
+
+            <!-- <label for="input">Choose a video file to process:</label>
+              <input type="file" id="input" name="input_video" accept="video/mp4, video/mov">
+              <video id="video" width="320" height="240" controls style="display"></video> -->
+
+            <a id="playPauseBtn" class="waves-effect waves-light btn" onclick="playVideo()">Play</a>
+            <!-- Modal Trigger -->
+            <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Settings</a>
+          </div>
+        </div>
+        <div class="col s6">
+          <canvas id="myChart" style="height:26vh; width:50%;" class="margin10"></canvas>
+          <div id="graphChangeChkBxHolder" style="padding-left:50px;">
+            <input id="neutralChkBx" checked type="checkbox" onchange="onChangeGraphLabel(event, 'neutral')" />
+            <label for="neutralChkBx" style="padding-right:20px;">Neutral</label>
+            <input id="surprisedChkBx" checked type="checkbox" onchange="onChangeGraphLabel(event, 'surprised')" />
+            <label for="surprisedChkBx" style="padding-right:20px;">Surprised</label>
+            <input id="angryChkBx" checked type="checkbox" onchange="onChangeGraphLabel(event, 'angry')" />
+            <label for="angryChkBx" style="padding-right:20px;">Angry</label>
+            <input id="disguisedChkBx" checked type="checkbox" onchange="onChangeGraphLabel(event, 'disgused')" />
+            <label for="disguisedChkBx" style="padding-right:20px;">Disgused</label>
+            <input id="fearfulChkBx" checked type="checkbox" onchange="onChangeGraphLabel(event, 'fearful')" />
+            <label for="fearfulChkBx" style="padding-right:20px;">Fearful</label>
+            <input id="sadChkBx" checked type="checkbox" onchange="onChangeGraphLabel(event, 'sad')" />
+            <label for="sadChkBx" style="padding-right:20px;">Sad</label>
+            <input id="happyChkBx" checked type="checkbox" onchange="onChangeGraphLabel(event, 'happy')" />
+            <label for="happyChkBx" style="padding-right:20px;">Happy</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col s12">
+          <!-- <nav>
+            <div class="nav-wrapper">
+              <a href="#" class="brand-logo center">Detected Faces</a>
+            </div>
+          </nav> -->
+          <div id="facesContainer"></div>
+        </div>
+      </div>
+
+      <!-- fps_meter -->
+      <!-- <div id="fps_meter" class="row side-by-side col s6">
+            <div>
+              <label for="time">Time:</label>
+              <input disabled value="-" id="time" type="text" class="bold">
+              <label for="fps">Estimated Fps:</label>
+              <input disabled value="-" id="fps" type="text" class="bold">
+            </div>
+          </div> -->
+      <!-- fps_meter -->
+
+      <!-- Modal Structure -->
+      <div id="modal1" class="modal">
+        <div class="modal-content">
+          <div class="row">
+            <!-- face_detector_selection_control -->
+            <div id="face_detector_selection_control" class="col s6 input-field" style="margin-right: 20px">
+              <select id="selectFaceDetector">
+                <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
+                <option value="tiny_face_detector">Tiny Face Detector</option>
+                <option value="mtcnn">MTCNN</option>
+              </select>
+              <label>Select Face Detector</label>
+            </div>
+            <!-- face_detector_selection_control -->
+
+            <!-- check boxes -->
+            <div class="col s6" style="width: 220px">
+              <input type="checkbox" id="withFaceLandmarksCheckbox" onchange="onChangeWithFaceLandmarks(event)" />
+              <label for="withFaceLandmarksCheckbox">Detect Face Landmarks</label>
+              <input type="checkbox" id="hideBoundingBoxesCheckbox" onchange="onChangeHideBoundingBoxes(event)" />
+              <label for="hideBoundingBoxesCheckbox">Hide Bounding Boxes</label>
+            </div>
+            <!-- check boxes -->
+          </div>
+
+          <!-- ssd_mobilenetv1_controls -->
+          <!-- <span id="ssd_mobilenetv1_controls">
+            <div class="row side-by-side">
+              <div class="row">
+                <label for="minConfidence">Min Confidence:</label>
+                <input disabled value="0.5" id="minConfidence" type="text" class="bold" />
+              </div>
+              <button class="waves-effect waves-light btn" onclick="onDecreaseMinConfidence()">
+                <i class="material-icons left">-</i>
+              </button>
+              <button class="waves-effect waves-light btn" onclick="onIncreaseMinConfidence()">
+                <i class="material-icons left">+</i>
+              </button>
+            </div>
+          </span> -->
+          <!-- ssd_mobilenetv1_controls -->
+
+          <!-- tiny_face_detector_controls -->
+          <!-- <span id="tiny_face_detector_controls">
+            <div class="row side-by-side">
+              <div class="row input-field" style="margin-right: 20px">
+                <select id="inputSize">
+                  <option value="" disabled selected>Input Size:</option>
+                  <option value="160">160 x 160</option>
+                  <option value="224">224 x 224</option>
+                  <option value="320">320 x 320</option>
+                  <option value="416">416 x 416</option>
+                  <option value="512">512 x 512</option>
+                  <option value="608">608 x 608</option>
+                </select>
+                <label>Input Size</label>
+              </div>
+              <div class="row">
+                <label for="scoreThreshold">Score Threshold:</label>
+                <input disabled value="0.5" id="scoreThreshold" type="text" class="bold" />
+              </div>
+              <button class="waves-effect waves-light btn" onclick="onDecreaseScoreThreshold()">
+                <i class="material-icons left">-</i>
+              </button>
+              <button class="waves-effect waves-light btn" onclick="onIncreaseScoreThreshold()">
+                <i class="material-icons left">+</i>
+              </button>
+            </div>
+          </span> -->
+          <!-- tiny_face_detector_controls -->
+
+          <!-- mtcnn_controls -->
+          <!-- <span id="mtcnn_controls">
+            <div class="row side-by-side">
+              <div class="row">
+                <label for="minFaceSize">Minimum Face Size:</label>
+                <input disabled value="20" id="minFaceSize" type="text" class="bold" />
+              </div>
+              <button class="waves-effect waves-light btn" onclick="onDecreaseMinFaceSize()">
+                <i class="material-icons left">-</i>
+              </button>
+              <button class="waves-effect waves-light btn" onclick="onIncreaseMinFaceSize()">
+                <i class="material-icons left">+</i>
+              </button>
+            </div>
+          </span> -->
+          <!-- mtcnn_controls -->
+        </div>
+        <div class="modal-footer">
+          <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="margin10">
+          <div>
+            <span class="dot" style="background-color: green"></span>&nbsp;Neutral: {{ emotionsCount.neutral }}
+          </div>
+          <div>
+            <span class="dot" style="background-color: orange"></span>&nbsp;Surprised: {{ emotionsCount.surprised }}
+          </div>
+          <div>
+            <span class="dot" style="background-color: red"></span>&nbsp;Angry: {{   emotionsCount.angry }}
+          </div>
+          <div>
+            <span class="dot" style="background-color: blue"></span>&nbsp;Disgused: {{ emotionsCount.disgused }}
+          </div>
+          <div>
+            <span class="dot" style="background-color: purple"></span>&nbsp;Fearful: {{ emotionsCount.fearful }}
+          </div>
+          <div>
+            <span class="dot" style="background-color: gray"></span>&nbsp;Sad: {{ emotionsCount.sad }}
+          </div>
+          <div>
+            <span class="dot" style="background-color: deeppink"></span>&nbsp;Happy: {{ emotionsCount.happy }}
+          </div>
+
+
+          <div ng-if="emotionsCount.happy > 55"
+            style="background-color: pink; color: aliceblue; padding: 0 5px;">
+            <p style="text-align: center; margin: 2px;">Candidate</p>
+            <p style="text-align: center; margin: 2px;">(Happy)</p>
+
+            <a href="http://localhost:9000/email/">Mail</a>
+          </div>
+          <div ng-if="emotionsCount.neutral > 75"
+            style="background-color: green; color: aliceblue; padding: 0 5px;">
+            <p style="text-align: center; margin: 2px;">Candidate</p>
+            <p style="text-align: center; margin: 2px;">(Neutral)</p>
+            <a href="http://localhost:9000/email/">Mail</a>
+          </div>
+
+
+          <!-- custom niyaj -->
+          <div ng-if="emotionsCount.surprised> 10" style="background-color: orange; color: aliceblue; padding: 0 5px;">
+            <p style="text-align: center; margin: 2px;">Candidate</p>
+            <p style="text-align: center; margin: 2px;">(Surprised)</p>
+            <a href="http://localhost:9000/email/">Mail</a>
+          </div>
+          <div ng-if="emotionsCount.angry > 10" style="background-color: red; color: aliceblue; padding: 0 5px;">
+            <p style="text-align: center; margin: 2px;">Candidate</p>
+            <p style="text-align: center; margin: 2px;">(Angry)</p>
+            <a href="http://localhost:9000/email/">Mail</a>
+          </div>
+          <div ng-if="emotionsCount.sad > 10" style="background-color: gray; color: black; padding: 0 5px;">
+            <p style="text-align: center; margin: 2px;">Candidate</p>
+            <p style="text-align: center; margin: 2px;">(Sad)</p>
+            <a href="http://localhost:9000/email/">Mail</a>
+          </div>
+          <div ng-if="emotionsCount.fearful > 10" style="background-color: purple; color: black; padding: 0 5px;">
+            <p style="text-align: center; margin: 2px;">Candidate</p>
+            <p style="text-align: center; margin: 2px;">(Fearful)</p>
+            <a href="http://localhost:9000/email/">Mail</a>
+          </div>
+          <div ng-if="emotionsCount.disgused > 10" style="background-color: blue; color: aliceblue; padding: 0 5px;">
+            <p style="text-align: center; margin: 2px;">Candidate</p>
+            <p style="text-align: center; margin: 2px;">(Disgused)</p>
+            <a href="http://localhost:9000/email/">Mail</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById("input").addEventListener("change", function () {
+      var media = URL.createObjectURL(this.files[0]);
+      var video = document.getElementById("inputVideo");
+      video.src = media;
+      video.style.display = "block";
+      video.play();
+    });
+
+  </script>
+  <script></script>
+</body>
+
+</html>
